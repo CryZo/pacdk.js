@@ -1,0 +1,21 @@
+version: '3'
+services:
+  apache2:
+    image: httpd
+    volumes:
+      - ./data:/usr/local/apache2/htdocs:ro
+      - ./httpd.conf:/usr/local/apache2/conf/httpd.conf:ro
+    ports:
+      - "8080:80"
+
+  frontend:
+    image: node:22-alpine
+    volumes:
+      - "./frontend:/opt/app/"
+    command: sh -c "cd /opt/app/ && yarn && yarn dev"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      - 3000:3000
+    environment:
+      - VITE_DATA_URI=http://localhost:8080

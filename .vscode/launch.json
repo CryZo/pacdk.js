@@ -1,0 +1,18 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "name": "Launch Chrome",
+        "request": "launch",
+        "type": "chrome",
+        "runtimeArgs": ["--force-dark-mode", "--enable-features=WebUIDarkMode"],
+        "url": "http://127.0.0.1:3000",
+        "webRoot": "${workspaceFolder}\\frontend\\",
+        "sourceMapPathOverrides": {
+          "/web/vite/*": "${workspaceFolder}\\frontend\\*",
+        },
+        "sourceMaps": true
+      }
+    ],
+  }
+  

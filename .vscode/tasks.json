@@ -1,0 +1,15 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Run App (Dev)",
+      "type": "shell",
+      "group": "build",
+      "command": "docker compose -f docker-compose.dev.yml up --build",
+      "isBackground": true,
+      "runOptions": {
+        "runOn": "folderOpen"
+      }
+    }
+  ]
+}
