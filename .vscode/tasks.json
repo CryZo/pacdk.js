@@ -5,7 +5,7 @@
       "label": "Run App (Dev)",
       "type": "shell",
       "group": "build",
-      "command": "docker compose -f docker-compose.dev.yml up --build",
+      "command": "docker compose up --build",
       "isBackground": true,
       "runOptions": {
         "runOn": "folderOpen"
