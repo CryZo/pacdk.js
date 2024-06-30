@@ -291,7 +291,7 @@ export default class PacdkFunctions {
   }
   
   public static unloadroom() {
-    const room = PacdkHelpers.getRoom(window.PacdkInternalVariablesModel.CurrentRoom);
+    const room = PacdkHelpers.getRoom(window.PacdkVariablesModel.currentroom);
     if (room)
       room.leave();
   }
@@ -364,12 +364,18 @@ export default class PacdkFunctions {
     }));
   }
   
-  public static async speech(character: string, text: string, audioId?: string) {
+  public static async speech(character: string, text: string, audioId?: string, effect?: string, dontwait?: boolean) {
     const c = PacdkHelpers.getCharacter(character);
     if (!c)
       return;
 
-    await c.speech(text, audioId);
+    if (typeof effect === 'boolean')
+      dontwait = effect;
+
+    if (dontwait)
+      c.speech(text, audioId);
+    else
+      await c.speech(text, audioId);
   }
   
   public static async walkto(character: string, x: number, y: number, direction: 1|2|3|4 = 1, _dontwait: 'dontwait' | '' = '', _reverse: boolean = false) {

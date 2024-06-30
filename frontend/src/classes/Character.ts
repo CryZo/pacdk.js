@@ -215,8 +215,8 @@ export default class Character extends ScriptTarget {
   public setWalkmapPos(x: number, y: number) {
     this.fromWalkmapCoords = true;
     if (this.roomInstance) {
-      this._x = x * this.roomInstance.walkmapSize;
-      this._y = y * this.roomInstance.walkmapSize;
+      this._x = (x -1) * this.roomInstance.walkmapSize;
+      this._y = (y -1) * this.roomInstance.walkmapSize;
       
       this.applyPos();
   

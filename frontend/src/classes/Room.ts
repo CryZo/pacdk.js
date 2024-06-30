@@ -62,10 +62,10 @@ export default class Room extends ScriptTarget {
     this.applyActiveState(true);
     this.dispatchEvent(new Event('enter'));
 
-    if (window.PacdkInternalVariablesModel.CurrentRoom)
-      window.PacdkFunctionModel.Room![PacdkHelpers.nameToId(window.PacdkInternalVariablesModel.CurrentRoom)].leave();
+    if (window.PacdkVariablesModel.currentroom)
+      window.PacdkFunctionModel.Room![PacdkHelpers.nameToId(window.PacdkVariablesModel.currentroom)].leave();
 
-    window.PacdkInternalVariablesModel.CurrentRoom = this.id;
+    window.PacdkVariablesModel.currentroom = this.id;
 
     await this.render();
 
@@ -90,7 +90,7 @@ export default class Room extends ScriptTarget {
     clearInterval(this.loop2Interval!);
 
     this.rootEl.remove();
-    window.PacdkInternalVariablesModel.CurrentRoom = '';
+    window.PacdkVariablesModel.currentroom = '';
   }
 
   private applyActiveState(state: boolean) {

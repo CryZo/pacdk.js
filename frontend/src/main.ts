@@ -19,7 +19,6 @@ import PacdkHelpers from './classes/PacdkHelpers';
     Opacity: 255,
     ScreenChange: 0,
     RunningFunctions: [],
-    CurrentRoom: '',
 
     Startscript: '',
     Givelink: '',
@@ -36,6 +35,22 @@ import PacdkHelpers from './classes/PacdkHelpers';
   window.addEventListener("contextmenu", e => e.preventDefault());
 
   await GameDataLoader.loadGameZip();
+
+  // Fill globals
+  window.addEventListener('mousemove', e => {
+    window.PacdkVariablesModel.mousex = e.clientX;
+    window.PacdkVariablesModel.mousey = e.clientY;
+  });
+  setInterval(() => {
+    const date = new Date();
+    window.PacdkVariablesModel.hour = date.getHours();
+    window.PacdkVariablesModel.minute = date.getMinutes();
+    window.PacdkVariablesModel.second = date.getSeconds();
+    window.PacdkVariablesModel.day = date.getDate();
+    window.PacdkVariablesModel.month = date.getMonth()+1;
+    window.PacdkVariablesModel.year = date.getFullYear();
+  }, 1000);
+  window.PacdkVariablesModel.currentroom = '';
 })();
 
 
@@ -50,6 +65,6 @@ window.fade = 0;
 // @ts-ignore
 window.blend = 1;
 // @ts-ignore
-window.wait = true;
+window.wait = false;
 // @ts-ignore
-window.dontwait = false;
+window.dontwait = true;
