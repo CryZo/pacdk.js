@@ -18,19 +18,34 @@ export default class Object extends ScriptTarget {
   public get z(): number {
     return this._z;
   }
-  
+
+  public state: number = 0;
+  private stateQueue: number[] = [];
+  private stateQueueInterval?: NodeJS.Timeout;
 
   private imgEl?: HTMLImageElement;
-
   private assetId: string = '';
   // TODO Animationen??!?
   // TODO States
+
+  public set isActive(v: boolean) {
+    this._isActive = v;
+    
+    clearInterval(this.stateQueueInterval);
+    if (this._isActive) {
+      this.stateQueueInterval = setInterval(() => {
+        this.handleStateQueue();
+      }, 1000);
+    }
+  }
   
   constructor(id: string, script: (context: EventTarget)=> Promise<void>) {
     super();
     this.id = id;
     this.script = script.bind(this);
     this.script(this);
+
+    
   }
 
   public setPos(x: number, y: number, z?: number) {
@@ -71,5 +86,19 @@ export default class Object extends ScriptTarget {
     PacdkHelpers.addMouseEvents(this, this.imgEl);
 
     return this.imgEl;
+  }
+
+  public addStates(...states: number[]) {
+    this.stateQueue.push(...states);
+    return this;
+  }
+
+  private async handleStateQueue() {
+    if (this.stateQueue.length === 0)
+      return;
+
+    this.state = this.stateQueue.shift()!;
+
+    // TODO Grafiken und so
   }
 }

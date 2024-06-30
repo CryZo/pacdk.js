@@ -97,7 +97,7 @@ export default class ScriptParser {
     if (s('savestring')) return buildFunctionCall('PacdkFunctions.savestring', [0]);
     if (s('set_rect_walkmap')) return buildFunctionCall('PacdkFunctions.set_rect_walkmap', [0]);
     if (s('setnum')) return buildFunctionCall('PacdkFunctions.setnum', [0, 1]);
-    if (s('setscreenchange')) return buildFunctionCall('PacdkFunctions.setscreenchange');
+    if (s('setscreenchange')) return buildFunctionCall('PacdkFunctions.setscreenchange', [0]);
     if (s('setstring')) return buildFunctionCall('PacdkFunctions.setstring', [0, 1]);
     if (s('settransparency')) return buildFunctionCall('PacdkFunctions.settransparency');
     if (s('setwalkmap')) return buildFunctionCall('PacdkFunctions.setwalkmap', [0]);
@@ -216,7 +216,7 @@ export default class ScriptParser {
 
     const codeLength = code.split("\n").length;
 
-    if (codeLength > 1)
+    if (codeLength > 1 && code.startsWith('{'))
       code = code.substring(2, code.length-2);
 
     return {
@@ -244,7 +244,7 @@ export default class ScriptParser {
     // TODO givelink
     if (s('hasitem')) return `{const tmp_hasitem_char = PacdkHelpers.getCharacter('${p(0, true)}'); if (tmp_hasitem_char && tmp_hasitem_char.hasItem('${p(1, true)}')) {await (${callback})()}}`;
     // TODO link
-    // TODO obj
+    if (s('obj')) return `{const tmp_obj = PacdkHelpers.getObject('${p(0, true)}'); if (tmp_obj && tmp_obj.state ${c()} ${p(1, false)}) {await (${callback})()}}`;
     // TODO charin
     // TODO command
     // TODO ischar

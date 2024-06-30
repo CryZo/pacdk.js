@@ -88,6 +88,9 @@ export default class Room extends ScriptTarget {
     
     clearInterval(this.loop1Interval!);
     clearInterval(this.loop2Interval!);
+
+    this.rootEl.remove();
+    window.PacdkInternalVariablesModel.CurrentRoom = '';
   }
 
   private applyActiveState(state: boolean) {

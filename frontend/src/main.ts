@@ -47,3 +47,9 @@ window.PacdkRun = () => {
 // TODO functions fixen
 // @ts-ignore
 window.fade = 0;
+// @ts-ignore
+window.blend = 1;
+// @ts-ignore
+window.wait = true;
+// @ts-ignore
+window.dontwait = false;

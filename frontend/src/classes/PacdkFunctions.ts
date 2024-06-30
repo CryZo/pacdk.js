@@ -124,7 +124,13 @@ export default class PacdkFunctions {
     window.PacdkVariablesModel[key] = value;
   }
   
-  public static setscreenchange(style: TInternalVariablesModel['ScreenChange']) {
+  public static setscreenchange(style: TInternalVariablesModel['ScreenChange'] | string) {
+    if (typeof style === 'string')
+      style = parseInt(style) as TInternalVariablesModel['ScreenChange'];
+
+    if (Number.isNaN(style))
+      style = 0;
+
     window.PacdkInternalVariablesModel.ScreenChange = style;
   }
   
@@ -228,6 +234,11 @@ export default class PacdkFunctions {
 
   //#region Objects
   public static setobj(id: string, ...state: number[]) {
+    const obj = PacdkHelpers.getObject(id);
+    if (!obj)
+      return;
+
+    obj.addStates(...state);
     console.log('setobj', {id, state});
   }
   
@@ -280,7 +291,9 @@ export default class PacdkFunctions {
   }
   
   public static unloadroom() {
-    console.log('unloadroom');
+    const room = PacdkHelpers.getRoom(window.PacdkInternalVariablesModel.CurrentRoom);
+    if (room)
+      room.leave();
   }
   
   public static scrollspeed(speed: number) {

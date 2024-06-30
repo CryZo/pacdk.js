@@ -1,5 +1,6 @@
 import type Character from "./Character";
 import Room from "./Room";
+import PacdkObject from "./Object";
 
 export default class PacdkHelpers {
   public static getCharacter(id: string): Character | null {
@@ -12,6 +13,15 @@ export default class PacdkHelpers {
       return window.PacdkFunctionModel.Character[id]
 
     return null;
+  }
+
+  public static getObject(id: string): PacdkObject | null {
+    id = this.nameToId(id);
+
+    if (!window.PacdkFunctionModel.Room || !window.PacdkInternalVariablesModel.ObjectToRoomMapping[id] || !window.PacdkFunctionModel.Room[window.PacdkInternalVariablesModel.ObjectToRoomMapping[id]])
+      return null;
+
+    return window.PacdkFunctionModel.Room[window.PacdkInternalVariablesModel.ObjectToRoomMapping[id]].objects[id];
   }
 
   public static getRoom(id: string): Room | null {

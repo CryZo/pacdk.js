@@ -1,5 +1,5 @@
 export default abstract class ScriptTarget extends EventTarget {
-  private _isActive: boolean = false;
+  protected _isActive: boolean = false;
   public get isActive(): boolean {
     return this._isActive;
   }
