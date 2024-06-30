@@ -14,6 +14,9 @@ This project allows you to host every pacdk based game as web app. Just copy you
   - states
 - Objects are positioned correct in rooms.
 - Characters are positioned NEARLY correct.
+- SFX
+- Music
+- Speech (Off speech and characters) (Subtitles will be displayed in console only)
 
 ## TODO
 - Walkmaps
