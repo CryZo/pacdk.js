@@ -10,12 +10,14 @@
   },
   "devDependencies": {
     "@types/node": "^20.12.13",
+    "@types/nprogress": "^0.2.3",
     "sass": "^1.77.4",
     "typescript": "^5.2.2",
     "vite": "^5.2.0"
   },
   "dependencies": {
     "iconv-lite": "^0.6.3",
+    "nprogress": "^0.2.0",
     "unzipit": "^1.4.3",
     "vite-plugin-node-polyfills": "^0.22.0"
   }

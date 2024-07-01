@@ -2,11 +2,14 @@ import { unzip } from "unzipit"
 import iconv from 'iconv-lite';
 import type { ZipEntry } from "unzipit";
 import PacdkHelpers from "./PacdkHelpers";
+import 'nprogress/nprogress.css';
+import NProgress from 'nprogress';
 
 export default class AssetStorage extends EventTarget {
   private db: Promise<IDBDatabase>;
   private queue: {[type: string]: string[]} = {};
   queueRunning: {[type: string]: boolean} = {};
+  totalQueue: number = 0;
 
   constructor() {
     super();
@@ -88,12 +91,32 @@ export default class AssetStorage extends EventTarget {
     })
   }
 
-  public fetchAssets() {
-    return Promise.all([
+  public async fetchAssets() {
+    NProgress.configure({trickle: true, minimum: 0.1, trickleSpeed: 2000});
+    NProgress.start();
+    await Promise.all([
       this.fetchByType('gfx'),
       this.fetchByType('sfx'),
       this.fetchByType('music')
     ]);
+    NProgress.done();
+  }
+
+  private setProgress() {
+    NProgress.configure({trickle: false, minimum: 0});
+
+    let offset = 0;
+    for (const type in this.queueRunning) {
+      if (this.queueRunning[type]) {
+        offset = 0.01;
+        break;
+      }
+    }
+
+    const rest = Object.keys(this.queue).reduce((acc, type) => acc + this.queue[type].length, 0);
+    const progress = ((this.totalQueue - rest) / this.totalQueue) - offset;
+
+    NProgress.set(progress);
   }
 
   private async fetchByType(type: string) {
@@ -123,6 +146,9 @@ export default class AssetStorage extends EventTarget {
 
       return id;
     });
+
+    this.totalQueue += this.queue[type].length;
+    this.setProgress();
 
     while (this.queue[type].length) {
       const id = this.queue[type].shift()!;
@@ -159,6 +185,7 @@ export default class AssetStorage extends EventTarget {
 
       request.addEventListener('success', () => this.dispatchEvent(new CustomEvent(`fetched:${type}_${id}`)));
       request.addEventListener('error', () => console.error(request.error));
+      this.setProgress();
     }
 
     zipState = (await this.db).transaction(['zipState'], 'readwrite').objectStore('zipState');
