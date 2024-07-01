@@ -143,7 +143,7 @@ export default class Room extends ScriptTarget {
       this.imgEl.src = await window.PacdkAssetStorage.getAsset(this.assetId, 'gfx');
     }
     catch (error) {
-      console.error(`Cant fetch asset "${this.assetId}" for object "${this.id}"`, error)
+      console.error(`Cant fetch asset "${this.assetId}" for room "${this.id}"`, error)
     }
     this.imgEl.classList.add('room-bg');
     this.imgEl.dataset.objectId = this.id;

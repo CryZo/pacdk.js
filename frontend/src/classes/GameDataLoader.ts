@@ -129,7 +129,7 @@ export default class GameDataLoader {
           break;
           
         case 'Room':
-          if (window.PacdkFunctionModel.Room && window.PacdkFunctionModel.Room[id])
+          if (window.PacdkFunctionModel.Room && window.PacdkFunctionModel.Room[id] && !['', '00'].includes(match.groups.assetId))
             window.PacdkFunctionModel.Room[id].setImg(match.groups.assetId);
           else
             console.error(`Unable to set asset id "${match.groups.assetId}" to room "${match.groups.name}"`);

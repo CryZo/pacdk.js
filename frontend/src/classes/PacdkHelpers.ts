@@ -34,7 +34,13 @@ export default class PacdkHelpers {
   }
 
   public static nameToId(name: string): string {
-    return name.toLowerCase().replace(/ /g, '_');
+    return name
+      .toLowerCase()
+      .replace(/ /g, '_')
+      .replace(/ä/g, 'ae')
+      .replace(/ö/g, 'oe')
+      .replace(/ü/g, 'ue')
+      .replace(/ß/g, 'ss');
   }
 
   public static addMouseEvents(context: EventTarget, el: HTMLElement) {

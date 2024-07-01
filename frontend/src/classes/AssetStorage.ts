@@ -1,13 +1,16 @@
 import { unzip } from "unzipit"
 import iconv from 'iconv-lite';
 import type { ZipEntry } from "unzipit";
+import PacdkHelpers from "./PacdkHelpers";
 
-export default class AssetStorage {
+export default class AssetStorage extends EventTarget {
   private db: Promise<IDBDatabase>;
-  private entriesCache: {[type: string]: {[key: string]: ZipEntry}} = {};
-  private pendingRequests: Record<string, Promise<Blob>> = {};
+  private queue: {[type: string]: string[]} = {};
+  queueRunning: {[type: string]: boolean} = {};
 
   constructor() {
+    super();
+
     this.db = new Promise<IDBDatabase>((resolve, reject) => {
       const request = window.indexedDB.open('assets_db', 1);
       request.addEventListener('error', () => {
@@ -17,25 +20,38 @@ export default class AssetStorage {
       request.addEventListener('success', () => {
         console.log('Database opened successfully');
 
+        this.fetchAssets();
         resolve(request.result)
       });
 
       request.addEventListener('upgradeneeded', () => {
         const db = request.result;
 
-        const objectStore = db.createObjectStore('assets_os', { keyPath: 'name' });
-        objectStore.createIndex('asset', 'asset', { unique: false });
+        const assets = db.createObjectStore('assets', { keyPath: 'id' });
+        assets.createIndex('assetId', 'assetId', { unique: false });
+        assets.createIndex('type', 'type', { unique: false });
+        assets.createIndex('fileName', 'fileName', { unique: false });
+
+        const zipState = db.createObjectStore('zipState', { keyPath: 'type' });
+        zipState.createIndex('state', 'state', { unique: false });
 
         console.log('Database setup complete');
+
+        this.fetchAssets();
         resolve(request.result)
       });
     });
   }
 
   public getAsset(id: string, type: string): Promise<string> {
+    if (id === '')
+      return Promise.reject(`Invalid asset id "${id}" of type "${type}"`);
+
+    id = PacdkHelpers.nameToId(id);
+
     return new Promise<string>(async (resolve, reject) => {
       const db = await this.db;
-      const objectStore = db.transaction('assets_os').objectStore('assets_os');
+      const objectStore = db.transaction('assets').objectStore('assets');
       const request = objectStore.get(`${type}_${id}`);
   
       request.addEventListener('success', async () => {
@@ -44,12 +60,25 @@ export default class AssetStorage {
             resolve(URL.createObjectURL(request.result.asset));
           }
           else {
-            if (!this.pendingRequests[id])
-              this.pendingRequests[id] = this.fetchAsset(id, type);
-            
-            const asset = await this.pendingRequests[id];
-            delete this.pendingRequests[id];
-            resolve(URL.createObjectURL(asset));
+            console.log(`Waiting for asset "${id}" of type "${type}"`);
+            this.addEventListener(`fetched:${type}_${id}`, async () => {
+              resolve(await this.getAsset(id, type));
+            });
+
+            if (!this.queue[type]) {
+              this.queue[type] = [id];
+            }
+            else if (!this.queue[type].includes(id)) {
+              this.queue[type].push(id);
+            }
+            else {
+              const i = this.queue[type].indexOf(id);
+              this.queue[type].unshift(this.queue[type].splice(i, 1)[0]);
+            }
+
+            if (!this.queueRunning[type]) {
+              await this.fetchByType(type);
+            }
           }
         }
         catch (error) {
@@ -59,38 +88,81 @@ export default class AssetStorage {
     })
   }
 
-  private async fetchAsset(id: string, type: string) {
-    console.debug(`Fetching asset "${id}" from "${type}.dat"`);
+  public fetchAssets() {
+    return Promise.all([
+      this.fetchByType('gfx'),
+      this.fetchByType('sfx'),
+      this.fetchByType('music')
+    ]);
+  }
 
-    let entries: {[key: string]: ZipEntry} = {};
-    if (this.entriesCache[type])
-      entries = this.entriesCache[type];
-    else
-      entries = (await unzip(`${import.meta.env.VITE_DATA_URI}/${type}.dat`)).entries;
-    const files = Object.keys(entries);
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
-      const filename = iconv.decode(Buffer.from(entries[file].nameBytes), 'cp437').toLowerCase();
+  private async fetchByType(type: string) {
+    let zipState = (await this.db).transaction(['zipState'], 'readwrite').objectStore('zipState');
+    const state = zipState.get(type);
 
-      const regex = new RegExp(`^${id.toLowerCase()}\.`, 'm');
-      if (filename.match(regex)) {
-        const blob = await entries[file].blob();
-        const db = await this.db;
-        const objectStore = db.transaction(['assets_os'], 'readwrite').objectStore('assets_os');
-        const record = {
-          asset : blob,
-          name : `${type}_${id}`
-        };
+    await new Promise<void>(resolve => {
+      state.addEventListener('success', () => {
+        resolve();
+      });
+    });
 
-        const request = objectStore.add(record);
+    if (state.result && state.result.state === 'fetched')
+      return;
 
-        request.addEventListener('success', () => console.log('Record addition attempt finished'));
-        request.addEventListener('error', () => console.error(request.error));
+    const decodeFilename = (entry: ZipEntry) => iconv.decode(Buffer.from(entry.nameBytes), 'cp437');
 
-        return blob;
+    console.debug(`Fetching assets of type "${type}"`);
+    this.queueRunning[type] = true;
+
+    const entries = (await unzip(`${import.meta.env.VITE_DATA_URI}/${type}.dat`)).entries;
+    const lookupTable: Record<string, string> = {};
+
+    this.queue[type] = Object.keys(entries).map(file => {
+      const id = PacdkHelpers.nameToId(decodeFilename(entries[file]).replace(/\.\w+$/m, ''));
+      lookupTable[id] = file;
+
+      return id;
+    });
+
+    while (this.queue[type].length) {
+      const id = this.queue[type].shift()!;
+      let filename = '';
+      if (lookupTable[id]) 
+        filename = lookupTable[id];
+
+      if (!filename) {
+        const files = Object.keys(entries);
+        for (let i = 0; i < files.length; i++) {
+          const file = files[i];
+          if (PacdkHelpers.nameToId(decodeFilename(entries[file]).replace(/\.\w+$/m, '')) === id) {
+            filename = file;
+            break;
+          }
+        }
       }
+
+      if (!filename) {
+        console.error(`Asset "${id}" not found in "${type}.dat"`);
+        continue;
+      }
+
+      const blob = await entries[filename].blob();
+      const db = await this.db;
+      const objectStore = db.transaction(['assets'], 'readwrite').objectStore('assets');
+      const request = objectStore.put({
+        asset : blob,
+        id : `${type}_${id}`,
+        assetId: id,
+        type: type,
+        fileName: decodeFilename(entries[filename])
+      });
+
+      request.addEventListener('success', () => this.dispatchEvent(new CustomEvent(`fetched:${type}_${id}`)));
+      request.addEventListener('error', () => console.error(request.error));
     }
 
-    throw new Error(`${type} asset "${id}" not found!`);
+    zipState = (await this.db).transaction(['zipState'], 'readwrite').objectStore('zipState');
+    zipState.put({type, state: 'fetched'});
+    this.queueRunning[type] = false;
   }
 }
