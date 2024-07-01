@@ -31,6 +31,14 @@ export default class Room extends ScriptTarget {
   public bottomOffset: number = 23;
   public height: number = 0;
   public width: number = 0;
+  public scrollX: number = 0;
+  public scrollY: number = 0;
+  public get scrollXpx() {
+    return this.scrollX * this.walkmapSize;
+  }
+  public get scrollYpx() {
+    return this.scrollY * this.walkmapSize;
+  }
 
   public get topOffsetPx() {
     return this.height / 24 * this.topOffset;

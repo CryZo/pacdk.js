@@ -43,6 +43,7 @@ export default class Character extends ScriptTarget {
 
   public height: number = 0;
   public width: number = 0;
+  public zoom: number = 1;
 
   
   private _direction: 1|2|3|4 = 1;
@@ -253,6 +254,8 @@ export default class Character extends ScriptTarget {
 
         const scaleY = scale;
         let scaleX = scale
+
+        this.zoom = scale;
 
         if (this.mirrored)
           scaleX *= -1;

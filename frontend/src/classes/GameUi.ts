@@ -76,23 +76,27 @@ export default class GameUi {
     infoLine.classList.add('infoLine')
     this.rootEl.append(infoLine);
   }
+
+  public actiontext() {
+    let command = '';
+    switch (this._command) {
+      case 'walk':
+        command = window.PacdkInternalVariablesModel.Walktext;
+        break;
+    
+      default:
+        command = this.commands[this._command];
+        break;
+    }
+
+    let line = command;
+    if (this.infoText)
+      line +=` ${this._infoText}`;
+
+    return line;
+  }
   
   private renderInfoBar() {
-      let command = '';
-      switch (this._command) {
-        case 'walk':
-          command = window.PacdkInternalVariablesModel.Walktext;
-          break;
-      
-        default:
-          command = this.commands[this._command];
-          break;
-      }
-
-      let line = command;
-      if (this.infoText)
-        line +=` ${this._infoText}`;
-
-      this.rootEl.querySelector('.infoLine')!.innerHTML = line;
+      this.rootEl.querySelector('.infoLine')!.innerHTML = this.actiontext();
   }
 }
