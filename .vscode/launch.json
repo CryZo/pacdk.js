@@ -11,7 +11,9 @@
         "sourceMapPathOverrides": {
           "/web/vite/*": "${workspaceFolder}\\frontend\\*",
         },
-        "sourceMaps": true
+        "sourceMaps": true,
+        "preLaunchTask": "Run App (Dev)",
+        "postDebugTask": "Terminate all tasks"
       }
     ],
   }

@@ -6,10 +6,43 @@
       "type": "shell",
       "group": "build",
       "command": "docker compose up --build",
-      "isBackground": true,
-      "runOptions": {
-        "runOn": "folderOpen"
-      }
+      "problemMatcher": [
+        {
+          "owner": "vite",
+          "fileLocation": ["relative", "${workspaceFolder}"],
+          "pattern": [
+            {
+              "regexp": "^frontend-1  \\| ([\\/\\w\\d]+\\.\\w+):(\\d+):(\\d+): (ERROR|WARNING): (.+)$",
+              "file": 1,
+              "line": 2,
+              "column": 3,
+              "severity": 4,
+              "message": 5
+            }
+          ],
+          "background": {
+            "activeOnStart": true,
+            "beginsPattern": "(^frontend-1  \\|   VITE .+  ready in \\d+ ms$)",
+            "endsPattern": "(^frontend-1  \\| .+ \\[vite\\] page reload .+$)|(^frontend-1  \\| .+ \\[vite\\] page reload .+$)|(^frontend-1  \\|   ➜  Network: .+$)"
+          }
+        }
+      ],
+      "isBackground": true
+    },
+    {
+      "label": "Terminate all tasks",
+      "command": "echo ${input:terminate}",
+      "type": "shell",
+      "problemMatcher": [],
+      "group": "none"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "terminate",
+      "type": "command",
+      "command": "workbench.action.tasks.terminate",
+      "args": "terminateAll"
     }
   ]
 }
