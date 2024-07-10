@@ -12,8 +12,8 @@
           "/web/vite/*": "${workspaceFolder}\\frontend\\*",
         },
         "sourceMaps": true,
-        "preLaunchTask": "Run App (Dev)",
-        "postDebugTask": "Terminate all tasks"
+        "preLaunchTask": "Run app",
+        "postDebugTask": "Terminate app"
       }
     ],
   }

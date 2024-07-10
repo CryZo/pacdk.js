@@ -2,7 +2,7 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "Run App (Dev)",
+      "label": "Run app",
       "type": "shell",
       "group": "build",
       "command": "docker compose up --build",
@@ -27,22 +27,23 @@
           }
         }
       ],
-      "isBackground": true
+      "isBackground": true,
+      "presentation": {
+        "showReuseMessage": false,
+        "clear": true,
+        "close": true
+      }
     },
     {
-      "label": "Terminate all tasks",
-      "command": "echo ${input:terminate}",
+      "label": "Terminate app",
+      "command": "docker compose down",
       "type": "shell",
-      "problemMatcher": [],
-      "group": "none"
-    }
-  ],
-  "inputs": [
-    {
-      "id": "terminate",
-      "type": "command",
-      "command": "workbench.action.tasks.terminate",
-      "args": "terminateAll"
+      "group": "none",
+      "presentation": {
+        "showReuseMessage": false,
+        "clear": true,
+        "close": true
+      }
     }
   ]
 }
