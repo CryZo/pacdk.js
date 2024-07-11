@@ -28,7 +28,6 @@ export default class Character extends ScriptTarget {
   
   private _x: number = 0;
   private _y: number = 0;
-  private _z: number = 0;
   private fromWalkmapCoords: boolean = false;
 
   public get x(): number {
@@ -38,7 +37,7 @@ export default class Character extends ScriptTarget {
     return this._y;
   }
   public get z(): number {
-    return this._z;
+    return this._y;
   }
 
   public height: number = 0;
@@ -200,13 +199,10 @@ export default class Character extends ScriptTarget {
   }
   
 
-  public setPos(x: number, y: number, z?: number) {
+  public setPos(x: number, y: number) {
     this.fromWalkmapCoords = false;
     this._x = x;
     this._y = y;
-
-    if (z)
-      this._z = z;
     
     this.applyPos();
 
@@ -216,8 +212,8 @@ export default class Character extends ScriptTarget {
   public setWalkmapPos(x: number, y: number) {
     this.fromWalkmapCoords = true;
     if (this.roomInstance) {
-      this._x = (x -1) * this.roomInstance.walkmapSize;
-      this._y = (y -1) * this.roomInstance.walkmapSize;
+      this._x = (x + .5) * this.roomInstance.walkmapSize;
+      this._y = (y + .5) * this.roomInstance.walkmapSize;
       
       this.applyPos();
   
@@ -243,9 +239,14 @@ export default class Character extends ScriptTarget {
       const r = this.roomInstance;
       if (r) {
         const topSectionHeight = (r.height / 24 * r.topOffset);
+
         const sectionHeight = (r.height / 24 * r.bottomOffset) - topSectionHeight;
-        const pos = this._y;
+        let pos = this._y;
+        if (this.fromWalkmapCoords)
+          pos -= this.roomTopOffset;
+
         let scale = pos/sectionHeight / 2 + .5;
+
         // console.log({id: this.id, scale});
         if (scale < .5)
           scale = .5;
@@ -261,6 +262,8 @@ export default class Character extends ScriptTarget {
           scaleX *= -1;
         this.rootEl.style.transform = `scale(${scaleX}, ${scaleY})`;
       }
+
+      this.rootEl.style.zIndex = this.z.toString();
     }
 
     return this;
@@ -294,6 +297,11 @@ export default class Character extends ScriptTarget {
 
     this.rootEl.append(this.bodyImg);
     this.rootEl.append(this.headImg);
+
+    if (window.PacdkInternalVariablesModel.FocussedCharacter === this.id)
+      this.rootEl.classList.add('focus');
+    else
+      this.rootEl.classList.remove('focus');
 
     await this.applyAssets();
   }

@@ -16,6 +16,10 @@ html {
   &>img {
     position: absolute;
   }
+
+  &.focus {
+    pointer-events: none;
+  }
 }
 .object {
   position: absolute;

@@ -54,12 +54,24 @@ export default class Room extends ScriptTarget {
     this.rootEl.innerHTML = ' '
 
     this.rootEl.addEventListener('click', e => {
-      if (e.target === this.rootEl) {
-        const x = Math.floor(e.offsetX * window.PacdkInternalVariablesModel.PixelScale / this.walkmapSize);
-        const y = Math.floor(e.offsetY * window.PacdkInternalVariablesModel.PixelScale / this.walkmapSize);
+      // TODO Andere listener event bubblen lassen
 
-        PacdkFunctions.walkto('self', x, y);
+      let target: HTMLElement | null = e.target as HTMLElement;
+      while (target && !target.classList.contains('room')) {
+        target = target.parentElement;
       }
+
+      if (!target)
+        return;
+
+      const outerRect = target.getBoundingClientRect();
+      const offsetX = e.clientX - outerRect.left;
+      const offsetY = e.clientY - outerRect.top;
+      
+      const x = Math.floor(offsetX * window.PacdkInternalVariablesModel.PixelScale / this.walkmapSize);
+      const y = Math.floor(offsetY * window.PacdkInternalVariablesModel.PixelScale / this.walkmapSize);
+
+      PacdkFunctions.walkto('self', x, y);
     });
 
     this.script = script.bind(this);
