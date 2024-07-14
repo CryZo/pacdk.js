@@ -252,6 +252,16 @@ export default class PacdkFunctions {
   
   public static async moveobj(id: string, x: number, y: number, speed: string, wait = false, smooth = 20) {
     console.log('moveobj', {id, x, y, speed, wait, smooth});
+
+    const obj = PacdkHelpers.getObject(id);
+    if (!obj)
+      return;
+
+    // TODO Animations foo
+    obj.setPos(x, y);
+
+    if (wait)
+      await this.wait(1000);
   }
   
   public static setobjlight(id: string, red: number, green: number, blue: number, speed?: number) {

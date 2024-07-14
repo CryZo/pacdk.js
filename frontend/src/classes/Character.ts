@@ -25,6 +25,8 @@ export default class Character extends ScriptTarget {
   private bodyY = 0;
   private footX = 0;
   private footY = 0;
+
+  public dontZoom: boolean = false;
   
   private _x: number = 0;
   private _y: number = 0;
@@ -245,13 +247,16 @@ export default class Character extends ScriptTarget {
         if (this.fromWalkmapCoords)
           pos -= this.roomTopOffset;
 
-        let scale = pos/sectionHeight / 2 + .5;
+        let scale = 1;
 
-        // console.log({id: this.id, scale});
-        if (scale < .5)
-          scale = .5;
-        if (scale > 1)
-          scale = 1;
+        if (!this.dontZoom) {
+          scale = pos/sectionHeight / 2 + .5;
+  
+          if (scale < .5)
+            scale = .5;
+          if (scale > 1)
+            scale = 1;
+        }
 
         const scaleY = scale;
         let scaleX = scale

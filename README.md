@@ -9,6 +9,7 @@ This project allows you to host every pacdk based game as web app. Just copy you
 - Characters have working
   - animations
   - states
+  - "don't zoom" option will be respected
 - Objects are positioned correct in rooms.
 - Characters are positioned NEARLY correct.
 - SFX

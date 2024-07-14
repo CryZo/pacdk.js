@@ -56,15 +56,7 @@ export default class Room extends ScriptTarget {
     this.rootEl.addEventListener('click', e => {
       // TODO Andere listener event bubblen lassen
 
-      let target: HTMLElement | null = e.target as HTMLElement;
-      while (target && !target.classList.contains('room')) {
-        target = target.parentElement;
-      }
-
-      if (!target)
-        return;
-
-      const outerRect = target.getBoundingClientRect();
+      const outerRect = (<HTMLElement>e.currentTarget).getBoundingClientRect();
       const offsetX = e.clientX - outerRect.left;
       const offsetY = e.clientY - outerRect.top;
       

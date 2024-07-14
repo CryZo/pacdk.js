@@ -169,6 +169,8 @@ export default class GameDataLoader {
       }
 
       const char = window.PacdkFunctionModel.Character[id];
+      const bodyLines = outerMatch.groups.body.split("\n");
+      char.dontZoom = bodyLines[4] === '0';
 
       const matches = outerMatch.groups.body.matchAll(/(?:\n|.(?!;\n))+.;$/gm);
       let first = true;
